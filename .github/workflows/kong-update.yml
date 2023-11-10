@@ -1,4 +1,4 @@
-name: Update Kong Configuration
+name: Update Kong
 
 on:
   push:
