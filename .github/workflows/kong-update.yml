@@ -1,0 +1,25 @@
+name: Update Kong Configuration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-kong:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Update Kong
+        run: |
+          # Fetch the latest configuration from the repository
+          git pull origin main
+
+          # Apply the configuration to Kong using the Admin API
+          curl -i -X PATCH \
+            --url http://<your-kong-admin-url>/config \
+            --header 'Content-Type: application/json' \
+            --data "@kong-config.yml"
