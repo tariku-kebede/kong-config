@@ -1,0 +1,72 @@
+name: Update-Repo
+on:
+  push:
+    branches-ignore:
+      - main
+jobs:
+  create_pull_request:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repository
+        uses: actions/checkout@v2
+      - name: Get Latest Commit Title and SHA
+        id: commit_info
+        run: |
+          COMMIT_TITLE=$(git log --pretty=format:"%s" -n 1 $GITHUB_SHA)
+          COMMIT_SHA=$GITHUB_SHA
+          echo "COMMIT_TITLE=${COMMIT_TITLE}" >> $GITHUB_ENV
+          echo "COMMIT_SHA=${COMMIT_SHA}" >> $GITHUB_ENV
+      - name: Create Pull Request
+        run: |
+          TITLE="${{ env.COMMIT_TITLE }} (SHA: ${{ env.COMMIT_SHA }})"
+          SOURCE_BRANCH=$GITHUB_REF
+          TARGET_BRANCH=main
+          # Create the pull request with auto-merge disabled
+          gh pr create --title "$TITLE" --body "$BODY" --head "$SOURCE_BRANCH" --base "$TARGET_BRANCH"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  merge_pull_request:
+    name: Merge Pull Request
+    needs: create_pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repository
+        uses: actions/checkout@v2
+      - name: Verify User Role
+        id: user_role
+        run: |
+          USER_ROLE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_ACTOR/permission | jq -r '.permission')
+          echo "USER_ROLE=${USER_ROLE}" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rebase and Merge
+        if: ${{ env.USER_ROLE == 'admin' || env.USER_ROLE == 'write' }}
+        run: |
+          PR_NUMBER=${{ needs.create_pull_request.outputs.pull-request-number }}
+          COMMIT_SHA=${{ env.COMMIT_SHA }}
+          COMMIT_MESSAGE=$(git log -n 1 $COMMIT_SHA --pretty=format:"%h %s")
+          # Construct the PR URL based on your repository URL
+          REPO_URL="https://github.com/${{ github.repository }}"
+          PR_URL="$REPO_URL/pull/$PR_NUMBER"
+          # Format the commit details with SHA
+          COMMIT_DETAILS="Commit Details:\n$COMMIT_SHA $COMMIT_MESSAGE"
+          # Append commit details to the pull request description
+          CURRENT_DESCRIPTION=$(gh pr view $PR_NUMBER --json body -q '.body' --jq '.body')
+          NEW_DESCRIPTION="$CURRENT_DESCRIPTION\n\n$COMMIT_DETAILS\n\nPull Request URL: $PR_URL"
+          echo "NEW_DESCRIPTION=$NEW_DESCRIPTION" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set New Description and Merge
+        if: ${{ env.USER_ROLE == 'admin' || env.USER_ROLE == 'write' }}
+        run: |
+          PR_NUMBER=${{ needs.create_pull_request.outputs.pull-request-number }}
+          gh pr edit $PR_NUMBER --body "$NEW_DESCRIPTION"
+          # Attempt to merge the pull request with rebase and auto-merge
+          for i in 1 2 3; do
+          gh pr merge $PR_NUMBER --rebase --auto && break || sleep 10
+          done || echo "Pull request merge failed."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
