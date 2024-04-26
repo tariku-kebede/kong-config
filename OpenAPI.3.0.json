@@ -1,176 +1,175 @@
 {
-  swagger: "2.0",
-  info: {
-    title: "Add On Selection Experience API",
-    description: "The following document is the specification of the REST API for Add On Selection Experience API. It includes the model definition as well as all available operations. The objective of this API is to support Add On Selection MFE to call downstream API",
-    version: "1.0",
-    contact: {
-      name: "Commerce UX Micro Frontend",
-      email: "dlteaminspire@telus.com",
+    "swagger": "2.0",
+    "info": {
+        "title": "Add On Selection Experience API",
+        "description": "The following document is the specification of the REST API for Add On Selection Experience API. It includes the model definition as well as all available operations. The objective of this API is to support Add On Selection MFE to call downstream API",
+        "version": "1.0",
+        "contact": {
+            "name": "Commerce UX Micro Frontend",
+            "email": "dlteaminspire@telus.com"
+        }
     },
-  },
-  schemes: [
-    "https",
-  ],
-  consumes: [
-    "application/json;charset=utf-8",
-  ],
-  produces: [
-    "application/json;charset=utf-8",
-  ],
-  "x-cmdbid": 22815,
-  "x-tmfdomain": "marketsales",
-  "x-api-engagement-num": "1441",
-  "x-apiname": "addOnsSelectionExperience",
-  "x-diagram-url": "https://drive.google.com/file/d/143SD-yREJ9gRC_lw3ZCKT2awVI43BYQO/view",
-  "x-tps": 7,
-  "x-responsetime": 3000,
-  paths: {
-    "/MfeStaticContentData": {
-      get: {
-        summary: "Retrieves the static content of mfe from contentenful",
-        operationId: "getMfeStaticContentData",
-        description: "Retrieves the static content of mfe from contentenful",
-        responses: {
-          "200": {
-            description: "Static Content for the mfe`",
-            schema: {
-              $ref: "#/definitions/MfeStaticContentDataResponse",
-            },
-          },
-          "403": {
-            description: "Bad request`",
-            schema: {
-              $ref: "#/definitions/MfeStaticContentDataResponse",
-            },
-          },
-          "500": {
-            description: "Unexpected error",
-            schema: {
-              $ref: "#/definitions/MfeStaticContentDataResponse",
-            },
-          },
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json;charset=utf-8"
+    ],
+    "produces": [
+        "application/json;charset=utf-8"
+    ],
+    "x-cmdbid": 22815,
+    "x-tmfdomain": "marketsales",
+    "x-api-engagement-num": "1441",
+    "x-apiname": "addOnsSelectionExperience",
+    "x-diagram-url": "https://drive.google.com/file/d/143SD-yREJ9gRC_lw3ZCKT2awVI43BYQO/view",
+    "x-tps": 7,
+    "x-responsetime": 3000,
+    "paths": {
+        "/MfeStaticContentData": {
+            "get": {
+                "summary": "Retrieves the static content of mfe from contentenful",
+                "operationId": "getMfeStaticContentData",
+                "description": "Retrieves the static content of mfe from contentenful",
+                "responses": {
+                    "200": {
+                        "description": "Static Content for the mfe`",
+                        "schema": {
+                            "$ref": "#/definitions/MfeStaticContentDataResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Bad request`",
+                        "schema": {
+                            "$ref": "#/definitions/MfeStaticContentDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/MfeStaticContentDataResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "MfeStaticContentDataResponse": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/BFFCommonResponse"
+                },
+                {
+                    "type": "object"
+                }
+            ]
         },
-      },
+        "BFFCommonResponse": {
+            "type": "object",
+            "required": [
+                "successInd",
+                "status",
+                "bffAlerts"
+            ],
+            "properties": {
+                "@type": {
+                    "type": "string"
+                },
+                "@baseType": {
+                    "type": "string"
+                },
+                "@schemaLocation": {
+                    "type": "string"
+                },
+                "successInd": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "bffError": {
+                    "type": "object"
+                },
+                "bffAlerts": {
+                    "type": "object"
+                },
+                "downstream": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DownstreamRequestResponse"
+                    }
+                }
+            }
+        },
+        "DownstreamRequestResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "httpMethod": {
+                    "type": "string"
+                },
+                "headers": {
+                    "type": "object"
+                },
+                "payload": {
+                    "type": "object"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "response": {
+                    "type": "object"
+                },
+                "criticalErrorData": {
+                    "$ref": "#/definitions/CriticalError"
+                }
+            }
+        },
+        "CriticalError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "remoteResponse": {
+                    "type": "object",
+                    "properties": {
+                        "status": {
+                            "type": "integer"
+                        },
+                        "data": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "method": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "object"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        }
     },
-  },
-  definitions: {
-    MfeStaticContentDataResponse: {
-      allOf: [
+    "securityDefinitions": {
+        "ApiKey": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-Api-Key"
+        }
+    },
+    "security": [
         {
-          $ref: "#/definitions/BFFCommonResponse",
-        },
-        {
-          type: "object",
-        },
-      ],
-    },
-    BFFCommonResponse: {
-      type: "object",
-      required: [
-        "successInd",
-        "status",
-        "bffAlerts",
-      ],
-      properties: {
-        "@type": {
-          type: "string",
-        },
-        "@baseType": {
-          type: "string",
-        },
-        "@schemaLocation": {
-          type: "string",
-        },
-        successInd: {
-          type: "boolean",
-        },
-        status: {
-          type: "integer",
-        },
-        bffError: {
-          type: "object",
-        },
-        bffAlerts: {
-          type: "object",
-        },
-        downstream: {
-          type: "array",
-          items: {
-            $ref: "#/definitions/DownstreamRequestResponse",
-          },
-        },
-      },
-    },
-    DownstreamRequestResponse: {
-      type: "object",
-      properties: {
-        url: {
-          type: "string",
-        },
-        httpMethod: {
-          type: "string",
-        },
-        headers: {
-          type: "object",
-        },
-        payload: {
-          type: "object",
-        },
-        status: {
-          type: "integer",
-        },
-        response: {
-          type: "object",
-        },
-        criticalErrorData: {
-          $ref: "#/definitions/CriticalError",
-        },
-      },
-    },
-    CriticalError: {
-      type: "object",
-      properties: {
-        code: {
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        remoteResponse: {
-          type: "object",
-          properties: {
-            status: {
-              type: "integer",
-            },
-            data: {
-              type: "object",
-            },
-          },
-        },
-        method: {
-          type: "string",
-        },
-        params: {
-          type: "object",
-        },
-        url: {
-          type: "string",
-        },
-      },
-    },
-  },
-  securityDefinitions: {
-    ApiKey: {
-      type: "apiKey",
-      in: "header",
-      name: "X-Api-Key",
-    },
-  },
-  security: [
-    {
-      ApiKey: [
-      ],
-    },
-  ],
+            "ApiKey": []
+        }
+    ]
 }
